@@ -33,7 +33,7 @@ func (h *ChannelHandler) CreateChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.CreateChannel(channel)
+	channelDTO, err := h.service.CreateChannel(channel)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -41,7 +41,7 @@ func (h *ChannelHandler) CreateChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", nil)
+	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", channelDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -120,7 +120,7 @@ func (h *ChannelHandler) UpdateChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.UpdateChannel(id, values)
+	channelDTO, err := h.service.UpdateChannel(id, values)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -128,7 +128,7 @@ func (h *ChannelHandler) UpdateChannel(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusOK, "ok", values)
+	err = utils.PushResponseJSON(w, http.StatusOK, "ok", channelDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-4: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)

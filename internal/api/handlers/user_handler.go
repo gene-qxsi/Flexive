@@ -33,7 +33,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.CreateUser(user)
+	userDTO, err := h.service.CreateUser(user)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -41,7 +41,7 @@ func (h *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", nil)
+	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", userDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -61,7 +61,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := h.service.GetUser(id)
+	userDTO, err := h.service.GetUser(id)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -69,7 +69,7 @@ func (h *UserHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusOK, "ok", user)
+	err = utils.PushResponseJSON(w, http.StatusOK, "ok", userDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -120,7 +120,8 @@ func (h *UserHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.UpdateUser(id, values)
+	// var user *models.User
+	_, err = h.service.UpdateUser(id, values)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)

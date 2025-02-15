@@ -3,7 +3,7 @@ package repositories
 import (
 	"fmt"
 
-	models "github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
 	"github.com/gene-qxsi/Flexive/internal/storage"
 )
 
@@ -17,22 +17,22 @@ func NewReactionRepo(storage *storage.Storage) *ReactionRepo {
 	}
 }
 
-func (r *ReactionRepo) CreateReaction(reaaction *models.Reaction) (int, int, error) {
+func (r *ReactionRepo) CreateReaction(reaaction *orm_models.Reaction) (*orm_models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/CreateReaction()"
 
 	err := r.storage.Sdb.Create(reaaction).Error
 	if err != nil {
-		return 0, 0, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	return reaaction.UserID, reaaction.PostID, nil
+	return reaaction, nil
 }
 
-func (r *ReactionRepo) GetReaction(userID, postID int) (*models.Reaction, error) {
+func (r *ReactionRepo) GetReaction(userID, postID int) (*orm_models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/GetReaction()"
 
-	var reaction models.Reaction
-	err := r.storage.Sdb.Preload("User").Preload("Post").First(&reaction, userID, postID).Error
+	var reaction orm_models.Reaction
+	err := r.storage.Sdb.First(&reaction, userID, postID).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -40,11 +40,11 @@ func (r *ReactionRepo) GetReaction(userID, postID int) (*models.Reaction, error)
 	return &reaction, nil
 }
 
-func (r *ReactionRepo) GetReactions() ([]models.Reaction, error) {
+func (r *ReactionRepo) GetReactions() ([]orm_models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/GetReactions()"
 
-	var reactions []models.Reaction
-	err := r.storage.Sdb.Preload("User").Preload("Post").Find(&reactions).Error
+	var reactions []orm_models.Reaction
+	err := r.storage.Sdb.Find(&reactions).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -55,7 +55,7 @@ func (r *ReactionRepo) GetReactions() ([]models.Reaction, error) {
 func (r *ReactionRepo) DeleteReaction(userID, postID int) error {
 	const op = "internal/api/repositories/reaction_repo.go/DeleteReaction()"
 
-	result := r.storage.Sdb.Delete(&models.Reaction{}, userID, postID)
+	result := r.storage.Sdb.Delete(&orm_models.Reaction{}, userID, postID)
 	if result.Error != nil {
 		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -68,18 +68,23 @@ func (r *ReactionRepo) DeleteReaction(userID, postID int) error {
 	return nil
 }
 
-func (r *ReactionRepo) UpdateReaction(userID, postID int, values map[string]interface{}) error {
+func (r *ReactionRepo) UpdateReaction(userID, postID int, values map[string]interface{}) (*orm_models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/UpdateReaction()"
 
-	result := r.storage.Sdb.Model(&models.Reaction{}).Where("user_id = ? AND post_id = ?", userID, postID).Updates(values)
+	result := r.storage.Sdb.Model(&orm_models.Reaction{}).Where("user_id = ? AND post_id = ?", userID, postID).Updates(values)
 	if result.Error != nil {
-		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s",
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s",
 			fmt.Sprintf("reaction with UserID %d AND PostID %d not found or no changes made", userID, postID), op)
 	}
+	var reaction *orm_models.Reaction
+	err := r.storage.Sdb.Where("user_id = ?", userID).Where("post_id = ?", postID).First(&reaction).Error
+	if err != nil {
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
+	}
 
-	return nil
+	return reaction, nil
 }

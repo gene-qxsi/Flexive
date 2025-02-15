@@ -33,7 +33,7 @@ func (h *ReactionHandler) CreateReaction(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	_, _, err = h.service.CreateReaction(reaction)
+	reactionDTO, err := h.service.CreateReaction(reaction)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -41,7 +41,7 @@ func (h *ReactionHandler) CreateReaction(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", nil)
+	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", reactionDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -136,7 +136,7 @@ func (h *ReactionHandler) UpdateReaction(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = h.service.UpdateReaction(userID, postID, values)
+	reactionDTO, err := h.service.UpdateReaction(userID, postID, values)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -144,7 +144,7 @@ func (h *ReactionHandler) UpdateReaction(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusOK, "ok", values)
+	err = utils.PushResponseJSON(w, http.StatusOK, "ok", reactionDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-4: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)

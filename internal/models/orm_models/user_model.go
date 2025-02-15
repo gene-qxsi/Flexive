@@ -11,10 +11,10 @@ type User struct {
 	Email         string         `gorm:"type:varchar(128);not null;unique" json:"email"`
 	Password      string         `gorm:"type:varchar(255);not null" json:"password"`
 	Birthday      *time.Time     `gorm:"type:timestamp;default:NULL" json:"birthday"`
-	Channels      []Channel      `gorm:"foreignKey:UserID"`
-	Comments      []Comment      `gorm:"foreignKey:UserID"`
-	Posts         []Post         `gorm:"foreignKey:UserID"`
-	Reactions     []Reaction     `gorm:"foreignKey:UserID"`
-	Subscriptions []Subscription `gorm:"foreignKey:UserID"`
+	Channels      []Channel      `gorm:"foreignKey:UserID;references:ID" json:"channels"`
+	Comments      []Comment      `gorm:"foreignKey:UserID;references:ID" json:"comments"`
+	Posts         []Post         `gorm:"foreignKey:UserID;references:ID" json:"posts"`
+	Reactions     []Reaction     `gorm:"foreignKey:UserID;references:ID" json:"reactions"`
+	Subscriptions []Subscription `gorm:"foreignKey:UserID;references:ID" json:"subscriptions"`
 	CreatedAt     time.Time      `gorm:"type:timestamp;default:now()" json:"created_at"`
 }

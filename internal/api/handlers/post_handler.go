@@ -33,11 +33,11 @@ func (h *PostHandler) CreatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.CreatePost(post)
+	postDTO, err := h.service.CreatePost(post)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
-		utils.PushResponseJSON(w, http.StatusConflict, err.Error(), nil)
+		utils.PushResponseJSON(w, http.StatusConflict, err.Error(), postDTO)
 		return
 	}
 
@@ -120,7 +120,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.UpdatePost(id, values)
+	postDTO, err := h.service.UpdatePost(id, values)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -128,7 +128,7 @@ func (h *PostHandler) UpdatePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusOK, "ok", values)
+	err = utils.PushResponseJSON(w, http.StatusOK, "ok", postDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-4: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)

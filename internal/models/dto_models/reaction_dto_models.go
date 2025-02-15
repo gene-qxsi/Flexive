@@ -1,10 +1,14 @@
 package dto_models
 
-import "time"
+import (
+	"time"
+)
 
 type ReactionDTO struct {
-	UserID    int       `json:"user_id"`
-	PostID    int       `json:"post_id"`
-	Reaction  string    `json:"reaction"`
-	CreatedAt time.Time `json:"created_at"`
+	UserID    int       `json:"user_id,omitempty"`
+	User      UserDTO   `json:"user,omitempty"`
+	PostID    int       `json:"post_id,omitempty"`
+	Post      PostDTO   `json:"post,omitempty"`
+	Reaction  string    `json:"reaction,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
 }

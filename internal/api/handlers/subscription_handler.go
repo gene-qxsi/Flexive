@@ -33,7 +33,7 @@ func (h *SubscriptionHandler) CreateSubscription(w http.ResponseWriter, r *http.
 		return
 	}
 
-	_, _, err = h.service.CreateSubscription(subscription)
+	subscriptionDTO, err := h.service.CreateSubscription(subscription)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -41,7 +41,7 @@ func (h *SubscriptionHandler) CreateSubscription(w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", nil)
+	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", subscriptionDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -136,7 +136,7 @@ func (h *SubscriptionHandler) UpdateSubscription(w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = h.service.UpdateSubscription(userID, channelID, values)
+	subscriptionDTO, err := h.service.UpdateSubscription(userID, channelID, values)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -144,7 +144,7 @@ func (h *SubscriptionHandler) UpdateSubscription(w http.ResponseWriter, r *http.
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusOK, "ok", values)
+	err = utils.PushResponseJSON(w, http.StatusOK, "ok", subscriptionDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-4: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)

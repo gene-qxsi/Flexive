@@ -33,7 +33,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = h.service.CreateComment(comment)
+	commentDTO, err := h.service.CreateComment(comment)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -41,7 +41,7 @@ func (h *CommentHandler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", nil)
+	err = utils.PushResponseJSON(w, http.StatusCreated, "ok", commentDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -120,7 +120,7 @@ func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.service.UpdateComment(id, values)
+	commentDTO, err := h.service.UpdateComment(id, values)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)
@@ -128,7 +128,7 @@ func (h *CommentHandler) UpdateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = utils.PushResponseJSON(w, http.StatusOK, "ok", values)
+	err = utils.PushResponseJSON(w, http.StatusOK, "ok", commentDTO)
 	if err != nil {
 		err = fmt.Errorf("❌ ОБРАБОТЧИК-ОШИБКА-4: %s. ПУТЬ: %s", err.Error(), op)
 		log.Println(err)

@@ -3,8 +3,9 @@ package repositories
 import (
 	"fmt"
 
-	models "github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
 	"github.com/gene-qxsi/Flexive/internal/storage"
+	"gorm.io/gorm"
 )
 
 type UserRepo struct {
@@ -17,23 +18,26 @@ func NewUserRepo(storage *storage.Storage) *UserRepo {
 	}
 }
 
-func (u *UserRepo) CreateUser(user *models.User) (int, error) {
+func (u *UserRepo) CreateUser(user *orm_models.User) (*orm_models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/CreateUser()"
 
 	err := u.storage.Sdb.Create(user).Error
 	if err != nil {
-		return 0, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	return user.ID, nil
+	return user, nil
 }
 
-func (u *UserRepo) GetUser(id int) (*models.User, error) {
+func (u *UserRepo) GetUser(id int) (*orm_models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/GetUser()"
 
-	var user models.User
-	err := u.storage.Sdb.Preload("Channels.User").Preload("Comments.User").Preload("Posts.User").
-		Preload("Reactions.User").Preload("Subscriptions.User").First(&user, id).Error
+	var user orm_models.User
+	err := u.storage.Sdb.
+		Preload("Channels", func(db *gorm.DB) *gorm.DB {
+			return db.Select("id, title, user_id, created_at")
+		}).
+		First(&user, id).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -41,10 +45,10 @@ func (u *UserRepo) GetUser(id int) (*models.User, error) {
 	return &user, nil
 }
 
-func (u *UserRepo) GetUsers() ([]models.User, error) {
+func (u *UserRepo) GetUsers() ([]orm_models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/GetUsers()"
 
-	var users []models.User
+	var users []orm_models.User
 	err := u.storage.Sdb.Find(&users).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
@@ -53,25 +57,31 @@ func (u *UserRepo) GetUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func (u *UserRepo) UpdateUser(id int, values map[string]interface{}) error {
+func (u *UserRepo) UpdateUser(id int, values map[string]interface{}) (*orm_models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/UpdateUser()"
 
-	result := u.storage.Sdb.Model(&models.User{}).Where("id = ?", id).Updates(values)
+	result := u.storage.Sdb.Model(&orm_models.User{}).Where("id = ?", id).Updates(values)
 	if result.Error != nil {
-		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", fmt.Sprintf("user with ID %d not found or no changes made", id), op)
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", fmt.Sprintf("user with ID %d not found or no changes made", id), op)
 	}
 
-	return nil
+	var updatedUser orm_models.User
+	err := u.storage.Sdb.First(&updatedUser, id).Error
+	if err != nil {
+		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
+	}
+
+	return &updatedUser, nil
 }
 
 func (u *UserRepo) DeleteUser(id int) error {
 	const op = "internal/api/repositories/user_repo.go/DeleteUser()"
 
-	result := u.storage.Sdb.Delete(&models.User{}, id)
+	result := u.storage.Sdb.Delete(&orm_models.User{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
