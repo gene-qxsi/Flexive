@@ -51,7 +51,7 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, tokenResponse)
+	c.JSON(http.StatusCreated, tokenResponse)
 }
 
 func (ac *AuthController) RefreshToken(c *gin.Context) {
