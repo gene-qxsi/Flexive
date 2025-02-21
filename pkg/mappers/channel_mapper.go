@@ -1,12 +1,12 @@
 package mappers
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/models/dto_models"
-	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
-func ChannelToDTO(orm orm_models.Channel) dto_models.ChannelDTO {
-	return dto_models.ChannelDTO{
+func ChannelToDTO(orm models.Channel) dto.ChannelDTO {
+	return dto.ChannelDTO{
 		ID:          orm.ID,
 		Title:       orm.Title,
 		Description: orm.Description,
@@ -14,8 +14,8 @@ func ChannelToDTO(orm orm_models.Channel) dto_models.ChannelDTO {
 		CreatedAt:   orm.CreatedAt,
 	}
 }
-func ChannelsToDTOs(orm []orm_models.Channel) []dto_models.ChannelDTO {
-	dto := make([]dto_models.ChannelDTO, len(orm))
+func ChannelsToDTOs(orm []models.Channel) []dto.ChannelDTO {
+	dto := make([]dto.ChannelDTO, len(orm))
 
 	for i, channel := range orm {
 		dto[i] = ChannelToDTO(channel)

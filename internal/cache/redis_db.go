@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
@@ -24,16 +23,20 @@ type RedisClient struct {
 func NewRedisClient() (*RedisClient, error) {
 	const op = "internal/cache/redis_db.go/NewRedisClient()"
 
-	addr := os.Getenv("REDIS_ADDR")
-	password := os.Getenv("REDIS_PASSWORD")
-	db, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+	// addr := os.Getenv("REDIS_ADDR")
+	// password := os.Getenv("REDIS_PASSWORD")
+	// db, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
+
+	// client := &RedisClient{
+	// 	Client: redis.NewClient(&redis.Options{
+	// 		Addr:     addr,
+	// 		Password: password,
+	// 		DB:       db,
+	// 	}),
+	// }
 
 	client := &RedisClient{
-		Client: redis.NewClient(&redis.Options{
-			Addr:     addr,
-			Password: password,
-			DB:       db,
-		}),
+		Client: redis.NewClient(&redis.Options{}),
 	}
 
 	_, err := client.Client.Ping(ctx).Result()
@@ -46,7 +49,7 @@ func NewRedisClient() (*RedisClient, error) {
 }
 
 func NewRedisClientCustom(addr, password string, db int) (*RedisClient, error) {
-	const op = "internal/cache/redis_db.go/NewRedisClient()"
+	const op = "internal/cache/redis_db.go/NewRedisClientCustom()"
 
 	client := &RedisClient{
 		Client: redis.NewClient(&redis.Options{

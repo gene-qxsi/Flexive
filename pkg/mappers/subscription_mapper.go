@@ -1,20 +1,20 @@
 package mappers
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/models/dto_models"
-	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
-func SubcscriptionToDTO(orm orm_models.Subscription) dto_models.SubscriptionDTO {
-	return dto_models.SubscriptionDTO{
+func SubcscriptionToDTO(orm models.Subscription) dto.SubscriptionDTO {
+	return dto.SubscriptionDTO{
 		UserID:    orm.UserID,
 		ChannelID: orm.ChannelID,
 		CreatedAt: orm.CreatedAt,
 	}
 }
 
-func SubcscriptionsToDTOs(orm []orm_models.Subscription) []dto_models.SubscriptionDTO {
-	dto := make([]dto_models.SubscriptionDTO, len(orm))
+func SubcscriptionsToDTOs(orm []models.Subscription) []dto.SubscriptionDTO {
+	dto := make([]dto.SubscriptionDTO, len(orm))
 
 	for i, subscription := range orm {
 		dto[i] = SubcscriptionToDTO(subscription)

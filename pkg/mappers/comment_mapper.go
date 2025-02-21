@@ -1,12 +1,12 @@
 package mappers
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/models/dto_models"
-	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
-func CommentToDTO(orm orm_models.Comment) dto_models.CommentDTO {
-	return dto_models.CommentDTO{
+func CommentToDTO(orm models.Comment) dto.CommentDTO {
+	return dto.CommentDTO{
 		ID:        orm.ID,
 		Content:   orm.Content,
 		UserID:    orm.UserID,
@@ -15,8 +15,8 @@ func CommentToDTO(orm orm_models.Comment) dto_models.CommentDTO {
 	}
 }
 
-func CommentsToDTOs(orm []orm_models.Comment) []dto_models.CommentDTO {
-	dto := make([]dto_models.CommentDTO, len(orm))
+func CommentsToDTOs(orm []models.Comment) []dto.CommentDTO {
+	dto := make([]dto.CommentDTO, len(orm))
 
 	for i, comment := range orm {
 		dto[i] = CommentToDTO(comment)

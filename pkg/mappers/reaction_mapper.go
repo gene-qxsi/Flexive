@@ -1,12 +1,12 @@
 package mappers
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/models/dto_models"
-	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
-func ReactionToDTO(orm orm_models.Reaction) dto_models.ReactionDTO {
-	return dto_models.ReactionDTO{
+func ReactionToDTO(orm models.Reaction) dto.ReactionDTO {
+	return dto.ReactionDTO{
 		UserID:    orm.UserID,
 		PostID:    orm.PostID,
 		Reaction:  orm.Reaction,
@@ -14,8 +14,8 @@ func ReactionToDTO(orm orm_models.Reaction) dto_models.ReactionDTO {
 	}
 }
 
-func ReactionsToDTOs(orm []orm_models.Reaction) []dto_models.ReactionDTO {
-	dto := make([]dto_models.ReactionDTO, len(orm))
+func ReactionsToDTOs(orm []models.Reaction) []dto.ReactionDTO {
+	dto := make([]dto.ReactionDTO, len(orm))
 
 	for i, reaction := range orm {
 		dto[i] = ReactionToDTO(reaction)

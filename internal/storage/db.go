@@ -5,8 +5,7 @@ import (
 	"os"
 
 	"github.com/gene-qxsi/Flexive/internal/cache"
-	models "github.com/gene-qxsi/Flexive/internal/models/orm_models"
-	"github.com/joho/godotenv"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -19,11 +18,6 @@ type Storage struct {
 
 func NewStorage() (*Storage, error) {
 	const op = "internal/storage/db.go/NewStorage()"
-
-	err := godotenv.Load("config.env")
-	if err != nil {
-		return nil, fmt.Errorf("❌ БД-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
-	}
 
 	sdbConnStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=%s",
 		os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"), os.Getenv("DB_HOST"), os.Getenv("DB_PORT"),

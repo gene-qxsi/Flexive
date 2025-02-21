@@ -1,17 +1,19 @@
 package mappers
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/models/dto_models"
-	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
-func UserToDTO(orm orm_models.User) dto_models.UserDTO {
-	return dto_models.UserDTO{
+func UserToDTO(orm models.User) dto.UserDTO {
+	return dto.UserDTO{
 		ID:            orm.ID,
 		Username:      orm.Username,
 		Description:   orm.Description,
 		Birthday:      orm.Birthday,
 		CreatedAt:     orm.CreatedAt,
+		Role:          orm.Role,
+		Password:      orm.Password,
 		Channels:      ChannelsToDTOs(orm.Channels),
 		Comments:      CommentsToDTOs(orm.Comments),
 		Posts:         PostsToDTOs(orm.Posts),
@@ -20,8 +22,8 @@ func UserToDTO(orm orm_models.User) dto_models.UserDTO {
 	}
 }
 
-func UsersToDTOs(orm []orm_models.User) []dto_models.UserDTO {
-	dto := make([]dto_models.UserDTO, len(orm))
+func UsersToDTOs(orm []models.User) []dto.UserDTO {
+	dto := make([]dto.UserDTO, len(orm))
 
 	for i, user := range orm {
 		dto[i] = UserToDTO(user)

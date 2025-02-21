@@ -1,12 +1,12 @@
 package mappers
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/models/dto_models"
-	"github.com/gene-qxsi/Flexive/internal/models/orm_models"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
-func PostToDTO(orm orm_models.Post) dto_models.PostDTO {
-	return dto_models.PostDTO{
+func PostToDTO(orm models.Post) dto.PostDTO {
+	return dto.PostDTO{
 		ID:          orm.ID,
 		Title:       orm.Title,
 		Description: orm.Description,
@@ -18,8 +18,8 @@ func PostToDTO(orm orm_models.Post) dto_models.PostDTO {
 	}
 }
 
-func PostsToDTOs(orm []orm_models.Post) []dto_models.PostDTO {
-	dto := make([]dto_models.PostDTO, len(orm))
+func PostsToDTOs(orm []models.Post) []dto.PostDTO {
+	dto := make([]dto.PostDTO, len(orm))
 
 	for i, post := range orm {
 		dto[i] = PostToDTO(post)
