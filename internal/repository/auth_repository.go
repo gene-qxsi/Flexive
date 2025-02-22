@@ -3,29 +3,28 @@ package repository
 import (
 	"context"
 	"fmt"
-	"os"
-	"strconv"
 	"time"
 
+	"github.com/gene-qxsi/Flexive/configs"
 	"github.com/redis/go-redis/v9"
 )
 
-var (
-	refreshTTL time.Duration
-)
-
 type AuthRepository struct {
-	client *redis.Client
+	client     *redis.Client
+	refreshTTL time.Duration
 }
 
-func NewAuthRepository(client *redis.Client) *AuthRepository {
-	return &AuthRepository{client: client}
+func NewAuthRepository(client *redis.Client, cfg *configs.Config) *AuthRepository {
+	return &AuthRepository{
+		client:     client,
+		refreshTTL: cfg.RedisRefreshTokenTTL,
+	}
 }
 
 func (r *AuthRepository) SaveRefreshToken(ctx context.Context, token string, userID int) error {
 	const op = "internal/repository/auth_repository.go/SaveRefreshToken()"
 
-	err := r.client.Set(ctx, token, userID, refreshTTL).Err()
+	err := r.client.Set(ctx, token, userID, r.refreshTTL).Err()
 	if err != nil {
 		return fmt.Errorf("ошибка сохранения токена. ПУТЬ: %s", op)
 	}
@@ -54,11 +53,5 @@ func (r *AuthRepository) DeleteByRefreshToken(ctx context.Context, token string)
 	if err != nil {
 		return fmt.Errorf("%s: ошибка удаления refresh-токена: %w", op, err)
 	}
-	return err
-}
-
-func InitAuthRepository() error {
-	ttl, err := strconv.Atoi(os.Getenv("REFRESH_TTL"))
-	refreshTTL = time.Duration(ttl)
 	return err
 }

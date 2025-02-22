@@ -4,23 +4,23 @@ import (
 	"fmt"
 
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
-	"github.com/gene-qxsi/Flexive/internal/storage"
+	"gorm.io/gorm"
 )
 
 type SubscriptionRepo struct {
-	storage *storage.Storage
+	db *gorm.DB
 }
 
-func NewSubscriptionRepo(storage *storage.Storage) *SubscriptionRepo {
+func NewSubscriptionRepo(db *gorm.DB) *SubscriptionRepo {
 	return &SubscriptionRepo{
-		storage: storage,
+		db: db,
 	}
 }
 
 func (r *SubscriptionRepo) CreateSubscription(subscription *models.Subscription) (*models.Subscription, error) {
 	const op = "internal/api/repositories/subscription_repo.go/CreateSubscription()"
 
-	err := r.storage.Sdb.Create(subscription).Error
+	err := r.db.Create(subscription).Error
 	if err != nil {
 		return subscription, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -32,7 +32,7 @@ func (r *SubscriptionRepo) GetSubscription(userID, channelID int) (*models.Subsc
 	const op = "internal/api/repositories/subscription_repo.go/GetSubscription()"
 
 	var subscription models.Subscription
-	err := r.storage.Sdb.First(&subscription, userID, channelID).Error
+	err := r.db.First(&subscription, userID, channelID).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -44,7 +44,7 @@ func (r *SubscriptionRepo) GetSubscriptions() ([]models.Subscription, error) {
 	const op = "internal/api/repositories/subscription_repo.go/GetSubscriptions()"
 
 	var subscriptions []models.Subscription
-	err := r.storage.Sdb.Find(&subscriptions).Error
+	err := r.db.Find(&subscriptions).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -55,7 +55,7 @@ func (r *SubscriptionRepo) GetSubscriptions() ([]models.Subscription, error) {
 func (r *SubscriptionRepo) DeleteSubscription(userID, channelID int) error {
 	const op = "internal/api/repositories/subscription_repo.go/DeleteSubscription()"
 
-	result := r.storage.Sdb.Delete(&models.Subscription{}, userID, channelID)
+	result := r.db.Delete(&models.Subscription{}, userID, channelID)
 	if result.Error != nil {
 		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -71,7 +71,7 @@ func (r *SubscriptionRepo) DeleteSubscription(userID, channelID int) error {
 func (r *SubscriptionRepo) UpdateSubscription(userID, channelID int, values map[string]interface{}) (*models.Subscription, error) {
 	const op = "internal/api/repositories/subscription_repo.go/UpdateSubscription()"
 
-	result := r.storage.Sdb.Model(&models.Subscription{}).Where("user_id = ? AND channel_id = ?", userID, channelID).Updates(values)
+	result := r.db.Model(&models.Subscription{}).Where("user_id = ? AND channel_id = ?", userID, channelID).Updates(values)
 	if result.Error != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -82,7 +82,7 @@ func (r *SubscriptionRepo) UpdateSubscription(userID, channelID int, values map[
 	}
 
 	var subscription *models.Subscription
-	err := r.storage.Sdb.Where("user_id = ?", userID).Where("channel_id = ?", channelID).First(&subscription).Error
+	err := r.db.Where("user_id = ?", userID).Where("channel_id = ?", channelID).First(&subscription).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 	}

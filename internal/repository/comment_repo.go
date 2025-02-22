@@ -4,23 +4,23 @@ import (
 	"fmt"
 
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
-	"github.com/gene-qxsi/Flexive/internal/storage"
+	"gorm.io/gorm"
 )
 
 type CommentRepo struct {
-	storage *storage.Storage
+	db *gorm.DB
 }
 
-func NewCommentRepo(storage *storage.Storage) *CommentRepo {
+func NewCommentRepo(db *gorm.DB) *CommentRepo {
 	return &CommentRepo{
-		storage: storage,
+		db: db,
 	}
 }
 
 func (r *CommentRepo) CreateComment(comment *models.Comment) (*models.Comment, error) {
 	const op = "internal/api/repositories/comment_repo.go/CreateComment()"
 
-	err := r.storage.Sdb.Create(comment).Error
+	err := r.db.Create(comment).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -32,7 +32,7 @@ func (r *CommentRepo) GetComment(id int) (*models.Comment, error) {
 	const op = "internal/api/repositories/comment_repo.go/GetComment()"
 
 	var comment models.Comment
-	err := r.storage.Sdb.First(&comment, id).Error
+	err := r.db.First(&comment, id).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -44,7 +44,7 @@ func (r *CommentRepo) GetComments() ([]models.Comment, error) {
 	const op = "internal/api/repositories/comment_repo.go/GetComments()"
 
 	var comments []models.Comment
-	err := r.storage.Sdb.Find(&comments).Error
+	err := r.db.Find(&comments).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -55,7 +55,7 @@ func (r *CommentRepo) GetComments() ([]models.Comment, error) {
 func (r *CommentRepo) DeleteComment(id int) error {
 	const op = "internal/api/repositories/comment_repo.go/DeleteComment()"
 
-	result := r.storage.Sdb.Delete(&models.Comment{}, id)
+	result := r.db.Delete(&models.Comment{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -70,7 +70,7 @@ func (r *CommentRepo) DeleteComment(id int) error {
 func (r *CommentRepo) UpdateComment(id int, values map[string]interface{}) (*models.Comment, error) {
 	const op = "internal/api/repositories/comment_repo.go/UpdateComment()"
 
-	result := r.storage.Sdb.Model(&models.Comment{}).Where("id = ?", id).Updates(values)
+	result := r.db.Model(&models.Comment{}).Where("id = ?", id).Updates(values)
 	if result.Error != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -80,7 +80,7 @@ func (r *CommentRepo) UpdateComment(id int, values map[string]interface{}) (*mod
 	}
 
 	var comment models.Comment
-	err := r.storage.Sdb.Where("id = ?", id).First(&comment).Error
+	err := r.db.Where("id = ?", id).First(&comment).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 	}

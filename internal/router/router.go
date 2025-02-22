@@ -3,8 +3,8 @@ package router
 import (
 	"fmt"
 	"log"
-	"os"
 
+	"github.com/gene-qxsi/Flexive/configs"
 	"github.com/gene-qxsi/Flexive/internal/delivery/http/controllers"
 	"github.com/gene-qxsi/Flexive/internal/middleware"
 	"github.com/gene-qxsi/Flexive/internal/repository"
@@ -13,29 +13,35 @@ import (
 	"github.com/gene-qxsi/Flexive/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
+	"gorm.io/gorm"
 )
 
-func InitRouter() *gin.Engine {
+func InitRouter(conf *configs.Config) *gin.Engine {
 	const op = "internal/router/router.go/InitRouter()"
 
 	router := gin.Default()
 
-	storage, err := storage.NewStorage()
+	postgres, err := storage.OpenDB(&gorm.Config{}, conf)
 	if err != nil {
 		err = fmt.Errorf("❌ РОУТЕР-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 		log.Fatalln(err)
 	}
 
-	redisClient := redis.NewClient(&redis.Options{})
-	hasher := services.NewSHA1Hasher(os.Getenv("SALT"))
+	redis, err := storage.OpenRedis(&redis.Options{})
+	if err != nil {
+		err = fmt.Errorf("❌ РОУТЕР-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
+		log.Fatalln(err)
+	}
 
-	userRepo := repository.NewUserRepo(storage)
-	channelRepo := repository.NewChannelRepo(storage)
-	commentRepo := repository.NewCommentRepo(storage)
-	postRepo := repository.NewPostRepo(storage)
-	reactionRepo := repository.NewReactionRepo(storage)
-	subscriptionRepo := repository.NewSubscriptionRepo(storage)
-	authRepo := repository.NewAuthRepository(redisClient)
+	hasher := services.NewSHA1Hasher(conf.Salt)
+
+	userRepo := repository.NewUserRepo(postgres)
+	channelRepo := repository.NewChannelRepo(postgres)
+	commentRepo := repository.NewCommentRepo(postgres)
+	postRepo := repository.NewPostRepo(postgres, redis, conf)
+	reactionRepo := repository.NewReactionRepo(postgres)
+	subscriptionRepo := repository.NewSubscriptionRepo(postgres)
+	authRepo := repository.NewAuthRepository(redis, conf)
 
 	userService := services.NewUserService(userRepo, hasher)
 	channelService := services.NewChannelService(channelRepo)
@@ -43,7 +49,7 @@ func InitRouter() *gin.Engine {
 	postService := services.NewPostService(postRepo)
 	reactionService := services.NewReactionService(reactionRepo)
 	subscriptionService := services.NewSubscriptionService(subscriptionRepo)
-	authService := services.NewAuthService(authRepo)
+	authService := services.NewAuthService(authRepo, conf)
 
 	authUseCase := usecase.NewAuthUseCase(userService, authService)
 

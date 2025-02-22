@@ -4,23 +4,22 @@ import (
 	"fmt"
 
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
-	"github.com/gene-qxsi/Flexive/internal/storage"
 	"gorm.io/gorm"
 )
 
 type UserRepo struct {
-	storage *storage.Storage
+	db *gorm.DB
 }
 
-func NewUserRepo(storage *storage.Storage) *UserRepo {
+func NewUserRepo(db *gorm.DB) *UserRepo {
 	return &UserRepo{
-		storage: storage,
+		db: db,
 	}
 }
 
 func (u *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/CreateUser()"
-	err := u.storage.Sdb.Debug().Create(user).Error
+	err := u.db.Debug().Create(user).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -32,7 +31,7 @@ func (u *UserRepo) GetUser(id int) (*models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/GetUser()"
 
 	var user models.User
-	err := u.storage.Sdb.Debug().
+	err := u.db.Debug().
 		Preload("Channels", func(db *gorm.DB) *gorm.DB {
 			return db.Select("id, title, user_id, created_at")
 		}).
@@ -48,7 +47,7 @@ func (u *UserRepo) GetUsers() ([]models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/GetUsers()"
 
 	var users []models.User
-	err := u.storage.Sdb.Debug().Find(&users).Error
+	err := u.db.Debug().Find(&users).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -59,7 +58,7 @@ func (u *UserRepo) GetUsers() ([]models.User, error) {
 func (u *UserRepo) UpdateUser(id int, values map[string]interface{}) (*models.User, error) {
 	const op = "internal/api/repositories/user_repo.go/UpdateUser()"
 
-	result := u.storage.Sdb.Debug().Model(&models.User{}).Where("id = ?", id).Updates(values)
+	result := u.db.Debug().Model(&models.User{}).Where("id = ?", id).Updates(values)
 	if result.Error != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -69,7 +68,7 @@ func (u *UserRepo) UpdateUser(id int, values map[string]interface{}) (*models.Us
 	}
 
 	var updatedUser models.User
-	err := u.storage.Sdb.Debug().First(&updatedUser, id).Error
+	err := u.db.Debug().First(&updatedUser, id).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -80,7 +79,7 @@ func (u *UserRepo) UpdateUser(id int, values map[string]interface{}) (*models.Us
 func (u *UserRepo) DeleteUser(id int) error {
 	const op = "internal/api/repositories/user_repo.go/DeleteUser()"
 
-	result := u.storage.Sdb.Debug().Delete(&models.User{}, id)
+	result := u.db.Debug().Delete(&models.User{}, id)
 	if result.Error != nil {
 		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -96,7 +95,7 @@ func (u *UserRepo) FindByUsername(username string) (*models.User, error) {
 	const op = "internal/repository/user_repo.go/FindByUsername()"
 
 	var user models.User
-	err := u.storage.Sdb.Debug().Where("username = ?", username).First(&user).Error
+	err := u.db.Debug().Where("username = ?", username).First(&user).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -108,7 +107,7 @@ func (u *UserRepo) FindByEmail(email string) (*models.User, error) {
 	const op = "internal/repository/user_repo.go/FindByEmail()"
 
 	var user models.User
-	err := u.storage.Sdb.Debug().Where("email = ?", email).First(&user).Error
+	err := u.db.Debug().Where("email = ?", email).First(&user).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -120,7 +119,7 @@ func (u *UserRepo) FindByEmailAndPasword(email, password string) (*models.User, 
 	const op = "internal/repository/user_repo.go/FindByEmailAndPasword()"
 
 	var user models.User
-	err := u.storage.Sdb.Debug().Where("email = ?", email).Where("password = ?", password).First(&user).Error
+	err := u.db.Debug().Where("email = ?", email).Where("password = ?", password).First(&user).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}

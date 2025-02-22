@@ -4,23 +4,23 @@ import (
 	"fmt"
 
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
-	"github.com/gene-qxsi/Flexive/internal/storage"
+	"gorm.io/gorm"
 )
 
 type ReactionRepo struct {
-	storage *storage.Storage
+	db *gorm.DB
 }
 
-func NewReactionRepo(storage *storage.Storage) *ReactionRepo {
+func NewReactionRepo(db *gorm.DB) *ReactionRepo {
 	return &ReactionRepo{
-		storage: storage,
+		db: db,
 	}
 }
 
 func (r *ReactionRepo) CreateReaction(reaaction *models.Reaction) (*models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/CreateReaction()"
 
-	err := r.storage.Sdb.Create(reaaction).Error
+	err := r.db.Create(reaaction).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -32,7 +32,7 @@ func (r *ReactionRepo) GetReaction(userID, postID int) (*models.Reaction, error)
 	const op = "internal/api/repositories/reaction_repo.go/GetReaction()"
 
 	var reaction models.Reaction
-	err := r.storage.Sdb.First(&reaction, userID, postID).Error
+	err := r.db.First(&reaction, userID, postID).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -44,7 +44,7 @@ func (r *ReactionRepo) GetReactions() ([]models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/GetReactions()"
 
 	var reactions []models.Reaction
-	err := r.storage.Sdb.Find(&reactions).Error
+	err := r.db.Find(&reactions).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -55,7 +55,7 @@ func (r *ReactionRepo) GetReactions() ([]models.Reaction, error) {
 func (r *ReactionRepo) DeleteReaction(userID, postID int) error {
 	const op = "internal/api/repositories/reaction_repo.go/DeleteReaction()"
 
-	result := r.storage.Sdb.Delete(&models.Reaction{}, userID, postID)
+	result := r.db.Delete(&models.Reaction{}, userID, postID)
 	if result.Error != nil {
 		return fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -71,7 +71,7 @@ func (r *ReactionRepo) DeleteReaction(userID, postID int) error {
 func (r *ReactionRepo) UpdateReaction(userID, postID int, values map[string]interface{}) (*models.Reaction, error) {
 	const op = "internal/api/repositories/reaction_repo.go/UpdateReaction()"
 
-	result := r.storage.Sdb.Model(&models.Reaction{}).Where("user_id = ? AND post_id = ?", userID, postID).Updates(values)
+	result := r.db.Model(&models.Reaction{}).Where("user_id = ? AND post_id = ?", userID, postID).Updates(values)
 	if result.Error != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", result.Error.Error(), op)
 	}
@@ -82,7 +82,7 @@ func (r *ReactionRepo) UpdateReaction(userID, postID int, values map[string]inte
 	}
 
 	var reaction *models.Reaction
-	err := r.storage.Sdb.Where("user_id = ?", userID).Where("post_id = ?", postID).First(&reaction).Error
+	err := r.db.Where("user_id = ?", userID).Where("post_id = ?", postID).First(&reaction).Error
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 	}

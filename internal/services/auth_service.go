@@ -3,18 +3,13 @@ package services
 import (
 	"context"
 	"fmt"
-	"os"
 	"strconv"
 	"time"
 
+	"github.com/gene-qxsi/Flexive/configs"
 	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
 	"github.com/gene-qxsi/Flexive/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
-)
-
-var (
-	secretKey  []byte
-	refreshTTL time.Duration
 )
 
 type AuthClaims struct {
@@ -26,26 +21,19 @@ type AuthClaims struct {
 
 type AuthService struct {
 	Repo *repository.AuthRepository
+
+	secretKey  []byte
+	refreshTTL time.Duration
+	accessTTL  time.Duration
 }
 
-func NewAuthService(repo *repository.AuthRepository) *AuthService {
-	return &AuthService{Repo: repo}
-}
-
-func Init() error {
-	const op = "internal/services/aut_service.go/InitSecretKey()"
-
-	ttl, err := strconv.Atoi(os.Getenv("REFRESH_TTL"))
-	if err != nil {
-		return err
+func NewAuthService(repo *repository.AuthRepository, conf *configs.Config) *AuthService {
+	return &AuthService{
+		Repo:       repo,
+		secretKey:  []byte(conf.JWTSecretKey),
+		refreshTTL: conf.RedisRefreshTokenTTL,
+		accessTTL:  conf.RedisAccessTokenTTL,
 	}
-	refreshTTL = time.Duration(ttl)
-
-	secretKey = []byte(os.Getenv("JWT_SECRET_KEY"))
-	if len(secretKey) == 0 {
-		return fmt.Errorf("❌ InitJWT-ОШИБКА-1: %s. ПУТЬ: %s", "JWT_SECRET_KEY не найден в переменных окружения", op)
-	}
-	return nil
 }
 
 func (a *AuthService) GenerateAccessToken(userID int, username, role string) (string, error) {
@@ -55,7 +43,7 @@ func (a *AuthService) GenerateAccessToken(userID int, username, role string) (st
 		Username: username,
 		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 7)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.accessTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			Subject:   strconv.Itoa(userID),
@@ -67,7 +55,7 @@ func (a *AuthService) GenerateAccessToken(userID int, username, role string) (st
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signingToken, err := token.SignedString(secretKey)
+	signingToken, err := token.SignedString(a.secretKey)
 	if err != nil {
 		return "", fmt.Errorf("❌ JWT-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -82,13 +70,13 @@ func (a *AuthService) GenerateRefreshToken(userID int, username string) (string,
 		ID:       userID,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(refreshTTL)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.refreshTTL)),
 		},
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signingToken, err := token.SignedString(secretKey)
+	signingToken, err := token.SignedString(a.secretKey)
 	if err != nil {
 		return "", fmt.Errorf("❌ JWT-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -125,7 +113,7 @@ func (a *AuthService) ParseAccessToken(tokenString string) (*AuthClaims, error) 
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("❌ JWT-ОШИБКА-1: %s. ПУТЬ: %s", "не верный метод подписи", op)
 		}
-		return secretKey, nil
+		return a.secretKey, nil
 	})
 
 	if err != nil {
