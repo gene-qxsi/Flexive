@@ -102,23 +102,23 @@ func (a *AuthUseCase) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.T
 func (a *AuthUseCase) RefreshToken(ctx context.Context, req dto.RefreshToken) (*dto.TokenResponse, error) {
 	const op = "internal/usecase/auth_usecase.go/RefreshToken()"
 
-	_, err := a.AuthSrv.GetUserIDByRefreshToken(ctx, req.RefreshToken)
+	userID, err := a.AuthSrv.GetUserIDByRefreshToken(ctx, req.RefreshToken)
 	if err == redis.Nil {
 		return nil, fmt.Errorf("refresh token не найден в Redis")
 	}
 
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	claims, err := a.AuthSrv.ParseToken(req.RefreshToken)
+	user, err := a.UserSrv.GetUser(userID)
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	accessToken, err := a.AuthSrv.GenerateAccessToken(claims.ID, claims.Username, claims.Role)
+	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID, user.Username, user.Role)
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
 	tokenResponse := dto.TokenResponse{
