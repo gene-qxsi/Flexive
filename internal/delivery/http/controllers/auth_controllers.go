@@ -54,6 +54,25 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 	c.JSON(http.StatusCreated, tokenResponse)
 }
 
+func (ac *AuthController) SignOut(c *gin.Context) {
+	// const op = "internal/delivery/http/controllers/auth_controllers.go/SignUp()"
+
+	var req dto.RefreshToken
+	if err := c.BindJSON(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "не корректное тело запроса"})
+		return
+	}
+
+	err := ac.AuthUseCase.SignOut(c.Request.Context(), req)
+
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusNoContent, nil)
+}
+
 func (ac *AuthController) RefreshToken(c *gin.Context) {
 	// const op = "internal/delivery/http/controllers/auth_controllers.go/RefreshToken()"
 
