@@ -117,7 +117,7 @@ func (a *AuthService) GenerateTokens(userID int, username, role string) (*dto.To
 	return &tokenResponse, nil
 }
 
-func (a *AuthService) ParseToken(tokenString string) (*AuthClaims, error) {
+func (a *AuthService) ParseAccessToken(tokenString string) (*AuthClaims, error) {
 	const op = "internal/services/aut_service.go/ParseToken()"
 
 	var claims AuthClaims

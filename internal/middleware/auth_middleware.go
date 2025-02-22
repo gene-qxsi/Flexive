@@ -34,7 +34,7 @@ func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := m.AuthSrv.ParseToken(data[1])
+		claims, err := m.AuthSrv.ParseAccessToken(data[1])
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, ResponseError{Error: err.Error()})
 			return
