@@ -121,7 +121,7 @@ func (a *AuthService) ParseToken(tokenString string) (*AuthClaims, error) {
 	const op = "internal/services/aut_service.go/ParseToken()"
 
 	var claims AuthClaims
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("❌ JWT-ОШИБКА-1: %s. ПУТЬ: %s", "не верный метод подписи", op)
 		}
