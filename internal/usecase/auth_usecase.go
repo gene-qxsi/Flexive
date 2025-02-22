@@ -26,8 +26,7 @@ func (a *AuthUseCase) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.T
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
-	fmt.Println(user.Password)
-	fmt.Println(req.Password)
+
 	ok := a.UserSrv.Hasher.Compare(req.Password, user.Password)
 	if !ok {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", "не верный пароль", op)
