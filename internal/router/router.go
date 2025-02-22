@@ -118,6 +118,7 @@ func InitRouter() *gin.Engine {
 		authGroup.POST("/sign-in", authController.SignIn)
 		authGroup.POST("/sign-up", authController.SignUp)
 		authGroup.POST("/refresh", authController.RefreshToken)
+		authGroup.POST("/sign-out", authController.SignOut)
 	}
 
 	return router
