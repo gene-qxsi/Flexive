@@ -65,11 +65,12 @@ func (a *AuthUseCase) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.T
 	}
 
 	user, err := a.UserSrv.CreateUser(&domain.User{
-		Username: req.Username,
-		Email:    req.Email,
-		Password: req.Password,
-		Role:     req.Role,
-		Birthday: req.Birthday,
+		Username:    req.Username,
+		Email:       req.Email,
+		Password:    req.Password,
+		Description: req.Description,
+		Role:        req.Role,
+		Birthday:    req.Birthday,
 	})
 
 	if err != nil {
