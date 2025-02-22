@@ -44,7 +44,7 @@
     - ✅ Сервисы
     - ✅ Хранение **refresh в Redis**
     - ✅ Hasher
-- **Избавится от Storage**, разделить логику работы с redis и postgres на разные repository
+- ✅ **Избавится от Storage**, разделить логику работы с redis и postgres на разные repository
 - **Написать Logger**, заменить прошлую систему логирования
 - ...
 
