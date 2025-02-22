@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
 	"github.com/gene-qxsi/Flexive/internal/domain"
-	"github.com/gene-qxsi/Flexive/internal/repository/models"
 	"github.com/gene-qxsi/Flexive/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +22,7 @@ func NewUserController(service *services.UserService) *UserHandler {
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	const op = "internal/delivery/http/controllers/user_controller.go/CreateUser()"
 
-	var user *models.User
+	var user *dto.SignUpRequest
 	err := c.BindJSON(&user)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, fmt.Sprintf("❌ ОБРАБОТЧИК-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op))

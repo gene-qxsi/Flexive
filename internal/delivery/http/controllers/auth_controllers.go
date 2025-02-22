@@ -40,7 +40,7 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 
 	var req dto.SignUpRequest
 	if err := c.BindJSON(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "не корректное тело запроса"})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "не корректное тело запроса, " + err.Error()})
 		return
 	}
 

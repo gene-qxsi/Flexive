@@ -24,6 +24,7 @@ func (s *UserService) CreateUser(user *domain.User) (*domain.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	userORM := domain.ToORMUser(user)
 	userORM, err = s.Repo.CreateUser(userORM)
 	if err != nil {
