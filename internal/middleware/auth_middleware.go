@@ -30,7 +30,7 @@ func (m *AuthMiddleware) JWTAuth() gin.HandlerFunc {
 
 		data := strings.Split(token, " ")
 		if len(data) != 2 || data[0] != "Bearer" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, ResponseError{Error: "не верный формат токена"})
+			c.AbortWithStatusJSON(http.StatusUnauthorized, ResponseError{Error: "неверный формат заголовка Authorization"})
 			return
 		}
 
