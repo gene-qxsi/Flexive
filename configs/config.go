@@ -49,47 +49,47 @@ func Load() *Config {
 	}
 
 	goServerAddr := os.Getenv("GO_ADDR")
-	if err != nil {
+	if goServerAddr == "" {
 		goServerAddr = ":8080"
 	}
 
 	salt := os.Getenv("SALT")
-	if err != nil {
+	if salt == "" {
 		salt = "flexive2202"
 	}
 
 	JWTSecretKey := os.Getenv("JWT_SECRET_KEY")
-	if err != nil {
+	if JWTSecretKey == "" {
 		JWTSecretKey = "flexive1702"
 	}
 
 	dbUser := os.Getenv("DB_USER")
-	if err != nil {
+	if dbUser == "" {
 		dbUser = "postgres"
 	}
 
 	dbPassword := os.Getenv("DB_PASSWORD")
-	if err != nil {
+	if dbPassword == "" {
 		dbPassword = "admin"
 	}
 
 	dbName := os.Getenv("DB_NAME")
-	if err != nil {
+	if dbName == "" {
 		dbName = "moji"
 	}
 
 	dbHost := os.Getenv("DB_HOST")
-	if err != nil {
+	if dbHost == "" {
 		dbHost = "localhost"
 	}
 
 	dbPort := os.Getenv("DB_PORT")
-	if err != nil {
+	if dbPort == "" {
 		dbPort = "5432"
 	}
 
 	dbSslmode := os.Getenv("DB_SSLMODE")
-	if err != nil {
+	if dbSslmode == "" {
 		dbSslmode = "disable"
 	}
 
