@@ -2,11 +2,10 @@ package services
 
 import (
 	"context"
+	"fmt"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
 	"github.com/gene-qxsi/Flexive/internal/domain"
 	"github.com/gene-qxsi/Flexive/internal/repository"
-	"github.com/gene-qxsi/Flexive/pkg/mappers"
 )
 
 type UserService struct {
@@ -21,11 +20,13 @@ func NewUserService(repo *repository.UserRepo, hasher *BcryptHasher) *UserServic
 func (s *UserService) CreateUser(user *domain.User) (*domain.User, error) {
 	var err error
 	user.Password, err = s.Hasher.Hash(user.Password)
+	fmt.Println(user.Password)
 	if err != nil {
 		return nil, err
 	}
 
 	userORM := domain.ToORMUser(user)
+	fmt.Println(userORM.PasswordHash)
 	userORM, err = s.Repo.CreateUser(userORM)
 	if err != nil {
 		return nil, err
@@ -45,55 +46,59 @@ func (s *UserService) GetUser(id int) (*domain.User, error) {
 	return user, err
 }
 
-func (s *UserService) GetUsers() ([]dto.UserDTO, error) {
+func (s *UserService) GetUsers() ([]domain.User, error) {
 	users, err := s.Repo.GetUsers()
 	if err != nil {
 		return nil, err
 	}
-	usersDTOs := mappers.UsersToDTOs(users)
-	return usersDTOs, nil
+	var usersDomain []domain.User
+	for _, user := range users {
+		usersDomain = append(usersDomain, *domain.ToDomainUser(&user))
+
+	}
+	return usersDomain, nil
 }
 
 func (s *UserService) DeleteUser(id int) error {
 	return s.Repo.DeleteUser(id)
 }
 
-func (s *UserService) UpdateUser(id int, values map[string]interface{}) (*dto.UserDTO, error) {
-	user, err := s.Repo.UpdateUser(id, values)
+func (s *UserService) UpdateUser(id int, values map[string]interface{}) (*domain.User, error) {
+	userORM, err := s.Repo.UpdateUser(id, values)
 	if err != nil {
 		return nil, err
 	}
 
-	userDTO := mappers.UserToDTO(*user)
-	return &userDTO, err
+	user := domain.ToDomainUser(userORM)
+	return user, err
 }
 
-func (s *UserService) FindByUsername(ctx context.Context, username string) (*dto.UserDTO, error) {
-	user, err := s.Repo.FindByUsername(username)
+func (s *UserService) FindByUsername(ctx context.Context, username string) (*domain.User, error) {
+	userORM, err := s.Repo.FindByUsername(username)
 	if err != nil {
 		return nil, err
 	}
 
-	userDTO := mappers.UserToDTO(*user)
-	return &userDTO, err
+	user := domain.ToDomainUser(userORM)
+	return user, err
 }
 
-func (s *UserService) FindByEmail(ctx context.Context, email string) (*dto.UserDTO, error) {
-	user, err := s.Repo.FindByEmail(email)
+func (s *UserService) FindByEmail(ctx context.Context, email string) (*domain.User, error) {
+	userORM, err := s.Repo.FindByEmail(email)
 	if err != nil {
 		return nil, err
 	}
 
-	userDTO := mappers.UserToDTO(*user)
-	return &userDTO, err
+	user := domain.ToDomainUser(userORM)
+	return user, err
 }
 
-func (s *UserService) FindByEmailAndPasword(ctx context.Context, email, password string) (*dto.UserDTO, error) {
-	user, err := s.Repo.FindByEmailAndPasword(email, password)
+func (s *UserService) FindByEmailAndPasword(ctx context.Context, email, password string) (*domain.User, error) {
+	userORM, err := s.Repo.FindByEmailAndPasword(email, password)
 	if err != nil {
 		return nil, err
 	}
 
-	userDTO := mappers.UserToDTO(*user)
-	return &userDTO, err
+	user := domain.ToDomainUser(userORM)
+	return user, err
 }

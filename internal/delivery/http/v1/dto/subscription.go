@@ -9,5 +9,7 @@ type SubscriptionDTO struct {
 	User      UserDTO    `json:"user,omitempty"`
 	ChannelID int        `json:"channel_id,omitempty"`
 	Channel   ChannelDTO `json:"channel,omitempty"`
-	CreatedAt time.Time  `json:"create_at,omitempty"`
+	Role      string     `json:"role"`
+	CreatedAt time.Time  `json:"created_at,omitempty"`
+	UpdatedAt time.Time  `gorm:"type:timestamp;default:now()"`
 }

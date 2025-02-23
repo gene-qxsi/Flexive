@@ -23,6 +23,7 @@ func (u *UserRepo) CreateUser(user *models.User) (*models.User, error) {
 	if err != nil {
 		return nil, fmt.Errorf("❌ РЕПОЗИТОРИЙ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
 	}
+	fmt.Println(user.PasswordHash)
 
 	return user, nil
 }

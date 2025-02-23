@@ -1,10 +1,9 @@
 package services
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/repository"
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
-	"github.com/gene-qxsi/Flexive/pkg/mappers"
 )
 
 type SubscriptionService struct {
@@ -16,33 +15,33 @@ func NewSubscriptionService(repo *repository.SubscriptionRepo) *SubscriptionServ
 }
 
 func (s *SubscriptionService) CreateSubscription(subscription *models.Subscription) (*dto.SubscriptionDTO, error) {
-	subscription, err := s.Repo.CreateSubscription(subscription)
-	if err != nil {
-		return nil, err
-	}
+	// subscription, err := s.Repo.CreateSubscription(subscription)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	subscriptionDTO := mappers.SubcscriptionToDTO(*subscription)
-	return &subscriptionDTO, err
+	// subscriptionDTO := mappers.SubcscriptionToDTO(*subscription)
+	return nil, nil
 }
 
 func (s *SubscriptionService) GetSubscription(userID, channelID int) (*dto.SubscriptionDTO, error) {
-	subscription, err := s.Repo.GetSubscription(userID, channelID)
-	if err != nil {
-		return nil, err
-	}
+	// subscription, err := s.Repo.GetSubscription(userID, channelID)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	subscriptionDTO := mappers.SubcscriptionToDTO(*subscription)
-	return &subscriptionDTO, err
+	// subscriptionDTO := mappers.SubcscriptionToDTO(*subscription)
+	return nil, nil
 }
 
 func (s *SubscriptionService) GetSubscriptions() ([]dto.SubscriptionDTO, error) {
-	subscriptions, err := s.Repo.GetSubscriptions()
-	if err != nil {
-		return nil, err
-	}
+	// subscriptions, err := s.Repo.GetSubscriptions()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	subscriptionsDTOs := mappers.SubcscriptionsToDTOs(subscriptions)
-	return subscriptionsDTOs, err
+	// subscriptionsDTOs := mappers.SubcscriptionsToDTOs(subscriptions)
+	return nil, nil
 }
 
 func (s *SubscriptionService) DeleteSubscription(userID, channelID int) error {
@@ -50,11 +49,11 @@ func (s *SubscriptionService) DeleteSubscription(userID, channelID int) error {
 }
 
 func (s *SubscriptionService) UpdateSubscription(userID, channelID int, values map[string]interface{}) (*dto.SubscriptionDTO, error) {
-	subscription, err := s.Repo.UpdateSubscription(userID, channelID, values)
-	if err != nil {
-		return nil, err
-	}
+	// subscription, err := s.Repo.UpdateSubscription(userID, channelID, values)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	subscriptionDTO := mappers.SubcscriptionToDTO(*subscription)
-	return &subscriptionDTO, err
+	// subscriptionDTO := mappers.SubcscriptionToDTO(*subscription)
+	return nil, nil
 }

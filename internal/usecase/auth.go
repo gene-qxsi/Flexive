@@ -4,19 +4,24 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/domain"
 	"github.com/gene-qxsi/Flexive/internal/services"
 	"github.com/redis/go-redis/v9"
 )
 
 type AuthUseCase struct {
-	UserSrv *services.UserService
-	AuthSrv *services.AuthService
+	UserSrv    *services.UserService
+	ProfileSrv *services.ProfileService
+	AuthSrv    *services.AuthService
 }
 
-func NewAuthUseCase(UserSrv *services.UserService, AuthSrv *services.AuthService) *AuthUseCase {
-	return &AuthUseCase{UserSrv: UserSrv, AuthSrv: AuthSrv}
+func NewAuthUseCase(UserSrv *services.UserService, AuthSrv *services.AuthService, ProfileSrv *services.ProfileService) *AuthUseCase {
+	return &AuthUseCase{
+		UserSrv:    UserSrv,
+		AuthSrv:    AuthSrv,
+		ProfileSrv: ProfileSrv,
+	}
 }
 
 func (a *AuthUseCase) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.TokenResponse, error) {
@@ -32,12 +37,12 @@ func (a *AuthUseCase) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.T
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", "не верный пароль", op)
 	}
 
-	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID, user.Username, user.Role)
+	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID)
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	refreshToken, err := a.AuthSrv.GenerateRefreshToken(user.ID, user.Username)
+	refreshToken, err := a.AuthSrv.GenerateRefreshToken(user.ID)
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -64,24 +69,33 @@ func (a *AuthUseCase) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.T
 	}
 
 	user, err := a.UserSrv.CreateUser(&domain.User{
-		Username: req.Username,
 		Email:    req.Email,
-		Password: req.Password,
-		// Description: req.Description,
-		Role:     req.Role,
-		Birthday: req.Birthday,
+		Password: req.PasswordHash,
 	})
 
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID, user.Username, user.Role)
+	_, err = a.ProfileSrv.CreateProfile(ctx, domain.Profile{
+		UserID:   user.ID,
+		Username: req.Username,
+		Bio:      "стандартное описание",
+		Birthday: nil,
+		Website:  nil,
+		Role:     nil,
+		// AvatarURL: "/default-avatar",
+	})
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	refreshToken, err := a.AuthSrv.GenerateRefreshToken(user.ID, user.Username)
+	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+	}
+
+	refreshToken, err := a.AuthSrv.GenerateRefreshToken(user.ID)
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
@@ -116,7 +130,7 @@ func (a *AuthUseCase) RefreshToken(ctx context.Context, req dto.RefreshToken) (*
 		return nil, fmt.Errorf("ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID, user.Username, user.Role)
+	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID)
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА-3: %s. ПУТЬ: %s", err.Error(), op)
 	}

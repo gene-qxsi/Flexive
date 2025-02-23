@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
@@ -43,9 +44,9 @@ func (ac *AuthController) SignUp(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": "не корректное тело запроса, " + err.Error()})
 		return
 	}
+	fmt.Println(req)
 
 	tokenResponse, err := ac.AuthUseCase.SignUp(c.Request.Context(), req)
-
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

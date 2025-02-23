@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS comments (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    post_id INT REFERENCES posts(id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
+)

@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/gene-qxsi/Flexive/configs"
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/domain"
 	"github.com/gene-qxsi/Flexive/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
@@ -30,12 +30,10 @@ func NewAuthService(repo *repository.AuthRepository, conf *configs.Config) *Auth
 	}
 }
 
-func (a *AuthService) GenerateAccessToken(userID int, username, role string) (string, error) {
+func (a *AuthService) GenerateAccessToken(userID int) (string, error) {
 	const op = "internal/services/aut_service.go/GenerateToken()"
 	claims := &domain.AuthClaims{
-		ID:       userID,
-		Username: username,
-		Role:     role,
+		ID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.accessTTL)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -57,12 +55,11 @@ func (a *AuthService) GenerateAccessToken(userID int, username, role string) (st
 	return signingToken, err
 }
 
-func (a *AuthService) GenerateRefreshToken(userID int, username string) (string, error) {
+func (a *AuthService) GenerateRefreshToken(userID int) (string, error) {
 	const op = "internal/services/aut_service.go/GenerateToken()"
 
 	claims := &domain.AuthClaims{
-		ID:       userID,
-		Username: username,
+		ID: userID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(a.refreshTTL)),
 		},
@@ -78,15 +75,15 @@ func (a *AuthService) GenerateRefreshToken(userID int, username string) (string,
 	return signingToken, err
 }
 
-func (a *AuthService) GenerateTokens(userID int, username, role string) (*dto.TokenResponse, error) {
+func (a *AuthService) GenerateTokens(userID int) (*dto.TokenResponse, error) {
 	const op = "internal/services/aut_service.go/GenerateTokens()"
 
-	accessToken, err := a.GenerateAccessToken(userID, username, role)
+	accessToken, err := a.GenerateAccessToken(userID)
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	refreshToken, err := a.GenerateRefreshToken(userID, username)
+	refreshToken, err := a.GenerateRefreshToken(userID)
 	if err != nil {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}

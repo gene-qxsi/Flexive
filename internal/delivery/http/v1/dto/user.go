@@ -5,13 +5,10 @@ import (
 )
 
 type UserDTO struct {
-	ID            int               `json:"id,omitempty"`
-	Username      string            `json:"username,omitempty"`
-	Description   string            `json:"description,omitempty"`
-	Email         string            `json:"email,omitempty"`
+	ID            int               `json:"id"`
+	Username      *string           `json:"username"`
+	Email         string            `json:"email"`
 	Password      string            `json:"-"`
-	Role          string            `json:"role,omitempty"`
-	Birthday      *time.Time        `json:"birthday,omitempty"`
 	Channels      []ChannelDTO      `json:"channels,omitempty"`
 	Comments      []CommentDTO      `json:"comments,omitempty"`
 	Posts         []PostDTO         `json:"posts,omitempty"`

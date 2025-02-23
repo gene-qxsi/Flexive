@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS posts (
+    id SERIAL PRIMARY KEY,
+    content TEXT NOT NULL,
+    views INT NOT NULL DEFAULT 0,
+    user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+    channel_id INT REFERENCES channels(id) ON DELETE CASCADE NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
+)

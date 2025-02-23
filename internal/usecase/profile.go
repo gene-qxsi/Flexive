@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/services"
 )
 
@@ -30,14 +30,18 @@ func (u *ProfileUsecase) GetProfileByUserID(ctx context.Context, userID int) (*d
 
 	profileDTO := dto.Profile{
 		Bio:       profile.Bio,
+		UserID:    profile.UserID,
+		Username:  profile.Username,
 		AvatarURL: profile.AvatarURL,
 		Website:   profile.Website,
-		Birthday:  profile.Birthday}
+		Birthday:  profile.Birthday,
+		Role:      profile.Role,
+	}
 
 	return &profileDTO, nil
 }
 
-func (u *ProfileUsecase) UpdateProfile(ctx context.Context, userID int, values map[string]string) (*dto.Profile, error) {
+func (u *ProfileUsecase) UpdateProfile(ctx context.Context, userID int, values map[string]interface{}) (*dto.Profile, error) {
 
 	profile, err := u.profileSrv.UpdateProfileByUserID(ctx, userID, values)
 	if err != nil {
@@ -45,6 +49,9 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, userID int, values m
 	}
 
 	profileDTO := dto.Profile{
+		UserID:    profile.UserID,
+		Username:  profile.Username,
+		Role:      profile.Role,
 		Bio:       profile.Bio,
 		AvatarURL: profile.AvatarURL,
 		Website:   profile.Website,
@@ -52,4 +59,27 @@ func (u *ProfileUsecase) UpdateProfile(ctx context.Context, userID int, values m
 	}
 
 	return &profileDTO, nil
+}
+
+func (u *ProfileUsecase) GetProfiles(ctx context.Context) ([]dto.Profile, error) {
+
+	profilesDomain, err := u.profileSrv.GetProfiles(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var profiles []dto.Profile
+	for _, profile := range profilesDomain {
+		profiles = append(profiles, dto.Profile{
+			UserID:    profile.UserID,
+			Username:  profile.Username,
+			Bio:       profile.Bio,
+			AvatarURL: profile.AvatarURL,
+			Website:   profile.Website,
+			Birthday:  profile.Birthday,
+			Role:      profile.Role,
+		})
+	}
+
+	return profiles, nil
 }

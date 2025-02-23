@@ -39,7 +39,6 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	channelRepo := repository.NewChannelRepo(postgres)
 	commentRepo := repository.NewCommentRepo(postgres)
 	postRepo := repository.NewPostRepo(postgres, redis, conf)
-	reactionRepo := repository.NewReactionRepo(postgres)
 	subscriptionRepo := repository.NewSubscriptionRepo(postgres)
 	authRepo := repository.NewAuthRepository(redis, conf)
 	profileRepo := repository.NewProfileRepository(postgres)
@@ -48,19 +47,17 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	channelService := services.NewChannelService(channelRepo)
 	commentService := services.NewCommentService(commentRepo)
 	postService := services.NewPostService(postRepo)
-	reactionService := services.NewReactionService(reactionRepo)
 	subscriptionService := services.NewSubscriptionService(subscriptionRepo)
 	authService := services.NewAuthService(authRepo, conf)
 	profileService := services.NewProfileService(profileRepo)
 
-	authUseCase := usecase.NewAuthUseCase(userService, authService)
+	authUseCase := usecase.NewAuthUseCase(userService, authService, profileService)
 	profileUseCase := usecase.NewProfileUsecase(profileService)
 
 	userHandler := controllers.NewUserController(userService)
 	channelController := controllers.NewChannelController(channelService)
 	commentController := controllers.NewCommentHandler(commentService)
 	postController := controllers.NewPostHandler(postService)
-	reactionController := controllers.NewReactionHandler(reactionService)
 	subscriptionController := controllers.NewSubscriptionController(subscriptionService)
 	authController := controllers.NewAuthController(authUseCase)
 	profileController := controllers.NewProfileController(profileUseCase)
@@ -103,15 +100,6 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 		postsGroup.PATCH("/:id", postController.UpdatePost)
 		postsGroup.DELETE("/:id", postController.DeletePost)
 	}
-	// REACTIONS API
-	reactionsGroup := router.Group("/reactions", authMiddleware.JWTAuth())
-	{
-		reactionsGroup.GET("/", reactionController.GetReactions)
-		reactionsGroup.GET("/:userID/:postID", reactionController.GetReaction)
-		reactionsGroup.POST("/", reactionController.CreateReaction)
-		reactionsGroup.PATCH("/:userID/:postID", reactionController.UpdateReaction)
-		reactionsGroup.DELETE("/:userID/:postID", reactionController.DeleteReaction)
-	}
 	// SUBSCRIPTIONS API
 	subscriptionsGroup := router.Group("/subscriptions", authMiddleware.JWTAuth())
 	subscriptionsGroup.Use()
@@ -132,10 +120,13 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	}
 
 	// PROFILE API
-	profileGroup := router.Group("/profile")
+	profileGroup := router.Group("/profiles", authMiddleware.JWTAuth())
 	{
-		profileGroup.GET("/:id", profileController.GetProfile)
-		profileGroup.PUT("/:id", profileController.UpdateProfile)
+		profileGroup.GET("/", profileController.GetProfiles)
+		profileGroup.GET("/me", profileController.GetMyProfile)
+		profileGroup.GET("/:userID", profileController.GetProfile)
+		profileGroup.PUT("/me", profileController.UpdateProfile)
+		// profileGroup.PUT("/:id", profileController.UpdateProfile)
 	}
 
 	return router

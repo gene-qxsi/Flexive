@@ -21,7 +21,7 @@ func OpenDB(gConf *gorm.Config, conf *configs.Config) (*gorm.DB, error) {
 	}
 
 	db.AutoMigrate(models.User{}, models.Post{}, models.Channel{},
-		models.Comment{}, models.Reaction{}, models.Subscription{})
+		models.Comment{}, models.Subscription{})
 
 	return db, nil
 }
