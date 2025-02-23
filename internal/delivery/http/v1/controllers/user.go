@@ -5,8 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
-	"github.com/gene-qxsi/Flexive/internal/domain"
 	"github.com/gene-qxsi/Flexive/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -17,33 +15,6 @@ type UserHandler struct {
 
 func NewUserController(service *services.UserService) *UserHandler {
 	return &UserHandler{service: service}
-}
-
-func (h *UserHandler) CreateUser(c *gin.Context) {
-	const op = "internal/delivery/http/controllers/user_controller.go/CreateUser()"
-
-	var user *dto.SignUpRequest
-	err := c.BindJSON(&user)
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, fmt.Sprintf("❌ ОБРАБОТЧИК-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op))
-		return
-	}
-	//TODO: нада какта эта исправить
-	//  не нада передавать domain из controller слоя
-	//  мб сделать прокси usecase
-	userDTO, err := h.service.CreateUser(&domain.User{
-		Username: user.Username,
-		Email:    user.Email,
-		Password: user.Password,
-		Role:     user.Role,
-		Birthday: user.Birthday,
-	})
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusConflict, fmt.Sprintf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op))
-		return
-	}
-
-	c.JSON(http.StatusCreated, userDTO)
 }
 
 func (h *UserHandler) GetUser(c *gin.Context) {
@@ -118,3 +89,30 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 
 	c.JSON(http.StatusNoContent, nil)
 }
+
+// func (h *UserHandler) CreateUser(c *gin.Context) {
+// 	const op = "internal/delivery/http/controllers/user_controller.go/CreateUser()"
+
+// 	var user *dto.SignUpRequest
+// 	err := c.BindJSON(&user)
+// 	if err != nil {
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, fmt.Sprintf("❌ ОБРАБОТЧИК-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op))
+// 		return
+// 	}
+// 	//TODO: нада какта эта исправить
+// 	//  не нада передавать domain из controller слоя
+// 	//  мб сделать прокси usecase
+// 	userDTO, err := h.service.CreateUser(&domain.User{
+// 		Username: user.Username,
+// 		Email:    user.Email,
+// 		Password: user.Password,
+// 		Role:     user.Role,
+// 		Birthday: user.Birthday,
+// 	})
+// 	if err != nil {
+// 		c.AbortWithStatusJSON(http.StatusConflict, fmt.Sprintf("❌ ОБРАБОТЧИК-ОШИБКА-2: %s. ПУТЬ: %s", err.Error(), op))
+// 		return
+// 	}
+
+// 	c.JSON(http.StatusCreated, userDTO)
+// }

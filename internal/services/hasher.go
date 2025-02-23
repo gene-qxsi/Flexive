@@ -10,7 +10,7 @@ type BcryptHasher struct {
 	salt string
 }
 
-func NewSHA1Hasher(salt string) *BcryptHasher {
+func NewBcryptHasher(salt string) *BcryptHasher {
 	return &BcryptHasher{salt: salt}
 }
 

@@ -8,16 +8,10 @@ import (
 
 	"github.com/gene-qxsi/Flexive/configs"
 	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/domain"
 	"github.com/gene-qxsi/Flexive/internal/repository"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-type AuthClaims struct {
-	ID       int    `json:"id"`
-	Username string `json:"username"`
-	Role     string `json:"role"`
-	jwt.RegisteredClaims
-}
 
 type AuthService struct {
 	Repo *repository.AuthRepository
@@ -38,7 +32,7 @@ func NewAuthService(repo *repository.AuthRepository, conf *configs.Config) *Auth
 
 func (a *AuthService) GenerateAccessToken(userID int, username, role string) (string, error) {
 	const op = "internal/services/aut_service.go/GenerateToken()"
-	claims := &AuthClaims{
+	claims := &domain.AuthClaims{
 		ID:       userID,
 		Username: username,
 		Role:     role,
@@ -66,7 +60,7 @@ func (a *AuthService) GenerateAccessToken(userID int, username, role string) (st
 func (a *AuthService) GenerateRefreshToken(userID int, username string) (string, error) {
 	const op = "internal/services/aut_service.go/GenerateToken()"
 
-	claims := &AuthClaims{
+	claims := &domain.AuthClaims{
 		ID:       userID,
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -105,10 +99,10 @@ func (a *AuthService) GenerateTokens(userID int, username, role string) (*dto.To
 	return &tokenResponse, nil
 }
 
-func (a *AuthService) ParseAccessToken(tokenString string) (*AuthClaims, error) {
+func (a *AuthService) ParseAccessToken(tokenString string) (*domain.AuthClaims, error) {
 	const op = "internal/services/aut_service.go/ParseToken()"
 
-	var claims AuthClaims
+	var claims domain.AuthClaims
 	token, err := jwt.ParseWithClaims(tokenString, &claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("❌ JWT-ОШИБКА-1: %s. ПУТЬ: %s", "не верный метод подписи", op)

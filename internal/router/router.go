@@ -5,7 +5,7 @@ import (
 	"log"
 
 	"github.com/gene-qxsi/Flexive/configs"
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/controllers"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/controllers"
 	"github.com/gene-qxsi/Flexive/internal/middleware"
 	"github.com/gene-qxsi/Flexive/internal/repository"
 	"github.com/gene-qxsi/Flexive/internal/services"
@@ -33,7 +33,7 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 		log.Fatalln(err)
 	}
 
-	hasher := services.NewSHA1Hasher(conf.Salt)
+	hasher := services.NewBcryptHasher(conf.Salt)
 
 	userRepo := repository.NewUserRepo(postgres)
 	channelRepo := repository.NewChannelRepo(postgres)
@@ -42,6 +42,7 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	reactionRepo := repository.NewReactionRepo(postgres)
 	subscriptionRepo := repository.NewSubscriptionRepo(postgres)
 	authRepo := repository.NewAuthRepository(redis, conf)
+	profileRepo := repository.NewProfileRepository(postgres)
 
 	userService := services.NewUserService(userRepo, hasher)
 	channelService := services.NewChannelService(channelRepo)
@@ -50,8 +51,10 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	reactionService := services.NewReactionService(reactionRepo)
 	subscriptionService := services.NewSubscriptionService(subscriptionRepo)
 	authService := services.NewAuthService(authRepo, conf)
+	profileService := services.NewProfileService(profileRepo)
 
 	authUseCase := usecase.NewAuthUseCase(userService, authService)
+	profileUseCase := usecase.NewProfileUsecase(profileService)
 
 	userHandler := controllers.NewUserController(userService)
 	channelController := controllers.NewChannelController(channelService)
@@ -60,6 +63,7 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	reactionController := controllers.NewReactionHandler(reactionService)
 	subscriptionController := controllers.NewSubscriptionController(subscriptionService)
 	authController := controllers.NewAuthController(authUseCase)
+	profileController := controllers.NewProfileController(profileUseCase)
 
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 
@@ -68,7 +72,7 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	{
 		usersGroup.GET("/", userHandler.GetUsers)
 		usersGroup.GET("/:id", userHandler.GetUser)
-		usersGroup.POST("/", userHandler.CreateUser)
+		// usersGroup.POST("/", userHandler.CreateUser)
 		usersGroup.PATCH("/:id", userHandler.UpdateUser)
 		usersGroup.DELETE("/:id", userHandler.DeleteUser)
 	}
@@ -125,6 +129,13 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 		authGroup.POST("/sign-up", authController.SignUp)
 		authGroup.POST("/refresh", authController.RefreshToken)
 		authGroup.POST("/sign-out", authController.SignOut)
+	}
+
+	// PROFILE API
+	profileGroup := router.Group("/profile")
+	{
+		profileGroup.GET("/:id", profileController.GetProfile)
+		profileGroup.PUT("/:id", profileController.UpdateProfile)
 	}
 
 	return router

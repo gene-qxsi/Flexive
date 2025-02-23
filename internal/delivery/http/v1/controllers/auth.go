@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/dto"
+	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/usecase"
 	"github.com/gin-gonic/gin"
 )
