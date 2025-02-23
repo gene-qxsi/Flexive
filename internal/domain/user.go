@@ -1,35 +1,30 @@
 package domain
 
 import (
-	"time"
-
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
 )
 
 type User struct {
-	ID int `json:"id"`
-	// Username  string    `json:"username"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
-	CreatedAt time.Time `json:"created_at"`
+	ID           int     `json:"id"`
+	Profile      Profile `json:"profile"`
+	Email        string  `json:"email"`
+	PasswordHash string  `json:"-"`
 }
 
-func ToORMUser(dom *User) *models.User {
+func ToORMUser(user *User) *models.User {
 	return &models.User{
-		ID: dom.ID,
-		// Username:  dom.Username,
-		Email:        dom.Email,
-		PasswordHash: dom.Password,
-		CreatedAt:    dom.CreatedAt,
+		ID:           user.ID,
+		Profile:      *ToORMProfile(&user.Profile),
+		Email:        user.Email,
+		PasswordHash: user.PasswordHash,
 	}
 }
 
 func ToDomainUser(orm *models.User) *User {
 	return &User{
-		ID: orm.ID,
-		// Username:  orm.Username,
-		Email:     orm.Email,
-		Password:  orm.PasswordHash,
-		CreatedAt: orm.CreatedAt,
+		ID:           orm.ID,
+		Profile:      *ToDomainProfile(&orm.Profile),
+		Email:        orm.Email,
+		PasswordHash: orm.PasswordHash,
 	}
 }

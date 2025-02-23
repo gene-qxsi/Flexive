@@ -32,7 +32,7 @@ func (a *AuthUseCase) SignIn(ctx context.Context, req dto.SignInRequest) (*dto.T
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
-	ok := a.UserSrv.Hasher.Compare(req.Password, user.Password)
+	ok := a.UserSrv.Hasher.Compare(req.Password, user.PasswordHash)
 	if !ok {
 		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", "не верный пароль", op)
 	}
@@ -69,8 +69,8 @@ func (a *AuthUseCase) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.T
 	}
 
 	user, err := a.UserSrv.CreateUser(&domain.User{
-		Email:    req.Email,
-		Password: req.PasswordHash,
+		Email:        req.Email,
+		PasswordHash: req.PasswordHash,
 	})
 
 	if err != nil {

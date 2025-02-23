@@ -19,8 +19,8 @@ func NewUserService(repo *repository.UserRepo, hasher *BcryptHasher) *UserServic
 
 func (s *UserService) CreateUser(user *domain.User) (*domain.User, error) {
 	var err error
-	user.Password, err = s.Hasher.Hash(user.Password)
-	fmt.Println(user.Password)
+	user.PasswordHash, err = s.Hasher.Hash(user.PasswordHash)
+	fmt.Println(user.PasswordHash)
 	if err != nil {
 		return nil, err
 	}
