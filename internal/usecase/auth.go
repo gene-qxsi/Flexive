@@ -74,7 +74,7 @@ func (a *AuthUseCase) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.T
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("не удалось создать юзера. ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
 	_, err = a.ProfileSrv.CreateProfile(ctx, domain.Profile{
@@ -87,22 +87,22 @@ func (a *AuthUseCase) SignUp(ctx context.Context, req dto.SignUpRequest) (*dto.T
 		// AvatarURL: "/default-avatar",
 	})
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("не удалось создать профиль. ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
 	accessToken, err := a.AuthSrv.GenerateAccessToken(user.ID)
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("неудачная генерация access токена. ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
 	refreshToken, err := a.AuthSrv.GenerateRefreshToken(user.ID)
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("неудачная генерация refresh токена. ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
 	err = a.AuthSrv.SaveRefreshToken(ctx, refreshToken, user.ID)
 	if err != nil {
-		return nil, fmt.Errorf("ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
+		return nil, fmt.Errorf("сохранение refresh токена ОШИБКА: %s. ПУТЬ: %s", err.Error(), op)
 	}
 
 	tokenResponse := dto.TokenResponse{

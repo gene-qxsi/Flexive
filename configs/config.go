@@ -22,17 +22,22 @@ type Config struct {
 	DbHost               string
 	DbName               string
 	DbSslmode            string
+	Driver               string
+	MigrationsPath       string
 }
 
 func Load() *Config {
 	const op = "configs/config.go/Load()"
 
-	err := godotenv.Load("configs/config.env")
+	err := godotenv.Load("/app/configs/config.env")
 	if err != nil {
 		log.Printf("❌ КОНФИГ-ОШИБКА-1: %s. ПУТЬ: %s", err.Error(), op)
+
+		if _, err := os.Stat("configs/config.env"); os.IsNotExist(err) {
+			log.Printf("❌ Файл конфигурации не найден по пути: %s", "configs/config.env")
+		}
 		os.Exit(1)
 	}
-
 	rfhTTL, err := strconv.Atoi(os.Getenv("REFRESH_TOKEN_TTL"))
 	if err != nil {
 		rfhTTL = 44640
@@ -80,7 +85,8 @@ func Load() *Config {
 
 	dbHost := os.Getenv("DB_HOST")
 	if dbHost == "" {
-		dbHost = "localhost"
+		// dbHost = "localhost"
+		dbHost = "postgres"
 	}
 
 	dbPort := os.Getenv("DB_PORT")
@@ -91,6 +97,16 @@ func Load() *Config {
 	dbSslmode := os.Getenv("DB_SSLMODE")
 	if dbSslmode == "" {
 		dbSslmode = "disable"
+	}
+
+	driver := os.Getenv("DRIVER")
+	if driver == "" {
+		driver = "postgres"
+	}
+
+	migrationsPath := os.Getenv("MIGRATIONS_PATH")
+	if migrationsPath == "" {
+		migrationsPath = "file:///app/migrations/pg"
 	}
 
 	return &Config{
@@ -106,5 +122,7 @@ func Load() *Config {
 		DbHost:               dbHost,
 		DbName:               dbName,
 		DbSslmode:            dbSslmode,
+		Driver:               driver,
+		MigrationsPath:       migrationsPath,
 	}
 }

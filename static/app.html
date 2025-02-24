@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Профиль пользователя</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      padding: 10px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+      position: relative;
+    }
+    .profile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .profile-menu {
+      display: none;
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      background: white;
+      border: 1px solid #ddd;
+      padding: 10px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="https://via.placeholder.com/40" alt="User" class="profile-icon" id="profileIcon">
+    <div class="profile-menu" id="profileMenu"></div>
+  </div>
+
+  <script>
+    async function authFetch(url, options = {}) {
+      const accessToken = localStorage.getItem("accessToken");
+      const headers = {
+        "Content-Type": "application/json",
+        ...options.headers,
+        "Authorization": `Bearer ${accessToken}`
+      };
+      return fetch(url, { ...options, headers });
+    }
+
+    document.getElementById("profileIcon").addEventListener("click", async function() {
+      const menu = document.getElementById("profileMenu");
+      
+      if (menu.style.display === "block") {
+        menu.style.display = "none";
+        return;
+      }
+      
+      try {
+        const response = await authFetch("http://localhost/profiles/me");
+        if (!response.ok) {
+          throw new Error(`Ошибка: ${response.status}`);
+        }
+        const data = await response.json();
+        
+        menu.innerHTML = `
+          <p>Имя: ${data.name || data.username || "Неизвестно"}</p>
+          <p>Email: ${data.email || "Не указан"}</p>
+        `;
+        menu.style.display = "block";
+      } catch (error) {
+        console.error("Ошибка запроса:", error);
+        menu.innerHTML = `<p>Ошибка загрузки данных профиля.</p>`;
+        menu.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
 	"gorm.io/gorm"
@@ -16,7 +17,7 @@ func NewProfileRepository(db *gorm.DB) *ProfileRepository {
 }
 
 func (r *ProfileRepository) CreateProfile(ctx context.Context, profile *models.Profile) (*models.Profile, error) {
-
+	fmt.Println(profile)
 	// var profile models.Profile
 	err := r.db.WithContext(ctx).Debug().Create(&profile).Error
 	if err != nil {

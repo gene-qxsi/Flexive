@@ -3,14 +3,17 @@ package storage
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
 
 func OpenRedis(opt *redis.Options) (*redis.Client, error) {
 	const op = "internal/storage/db.go/OpenRedis()"
-
-	client := redis.NewClient(opt)
+	// пока так
+	client := redis.NewClient(&redis.Options{
+		Addr: os.Getenv("REDIS_HOST") + ":" + os.Getenv("REDIS_PORT"),
+	})
 
 	_, err := client.Ping(context.Background()).Result()
 	if err != nil {

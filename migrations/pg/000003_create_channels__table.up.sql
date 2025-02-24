@@ -3,5 +3,6 @@ CREATE TABLE IF NOT EXISTS channels (
     title VARCHAR(128) NOT NULL,
     description VARCHAR(1024),
     user_id INT REFERENCES users(id) ON DELETE CASCADE NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT now()
+    created_at TIMESTAMP NOT NULL DEFAULT now(),
+    updated_at TIMESTAMP NOT NULL DEFAULT now()
 );

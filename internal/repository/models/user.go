@@ -11,6 +11,6 @@ type User struct {
 	Comments      []Comment      `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE"`
 	Posts         []Post         `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE"`
 	Subscriptions []Subscription `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE"`
-	CreatedAt     time.Time      `gorm:"type:autoUpdateTime"`
-	UpdatedAt     time.Time      `gorm:"type:autoUpdateTime"`
+	CreatedAt     time.Time      `gorm:"autoUpdateTime"`
+	UpdatedAt     time.Time      `gorm:"autoUpdateTime"`
 }

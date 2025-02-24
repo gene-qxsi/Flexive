@@ -118,7 +118,6 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 		authGroup.POST("/refresh", authController.RefreshToken)
 		authGroup.POST("/sign-out", authController.SignOut)
 	}
-
 	// PROFILE API
 	profileGroup := router.Group("/profiles", authMiddleware.JWTAuth())
 	{
