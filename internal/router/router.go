@@ -7,7 +7,8 @@ import (
 	"github.com/gene-qxsi/Flexive/configs"
 	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/controllers"
 	"github.com/gene-qxsi/Flexive/internal/middleware"
-	"github.com/gene-qxsi/Flexive/internal/repository"
+	auth "github.com/gene-qxsi/Flexive/internal/repository"
+	repository "github.com/gene-qxsi/Flexive/internal/repository/sqlrepo"
 	"github.com/gene-qxsi/Flexive/internal/services"
 	"github.com/gene-qxsi/Flexive/internal/storage"
 	"github.com/gene-qxsi/Flexive/internal/usecase"
@@ -40,7 +41,7 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	commentRepo := repository.NewCommentRepo(postgres)
 	postRepo := repository.NewPostRepo(postgres, redis, conf)
 	subscriptionRepo := repository.NewSubscriptionRepo(postgres)
-	authRepo := repository.NewAuthRepository(redis, conf)
+	authRepo := auth.NewAuthRepository(redis, conf)
 	profileRepo := repository.NewProfileRepository(postgres)
 
 	userService := services.NewUserService(userRepo, hasher)

@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gene-qxsi/Flexive/internal/domain"
-	"github.com/gene-qxsi/Flexive/internal/repository"
+	repository "github.com/gene-qxsi/Flexive/internal/repository/sqlrepo"
 )
 
 type UserService struct {

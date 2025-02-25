@@ -9,19 +9,20 @@ import (
 	"github.com/gene-qxsi/Flexive/configs"
 	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/domain"
-	"github.com/gene-qxsi/Flexive/internal/repository"
+	auth "github.com/gene-qxsi/Flexive/internal/repository"
+
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type AuthService struct {
-	Repo *repository.AuthRepository
+	Repo *auth.AuthRepository
 
 	secretKey  []byte
 	refreshTTL time.Duration
 	accessTTL  time.Duration
 }
 
-func NewAuthService(repo *repository.AuthRepository, conf *configs.Config) *AuthService {
+func NewAuthService(repo *auth.AuthRepository, conf *configs.Config) *AuthService {
 	return &AuthService{
 		Repo:       repo,
 		secretKey:  []byte(conf.JWTSecretKey),
