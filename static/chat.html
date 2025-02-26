@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+        }
+        .chat-container {
+            max-width: 600px;
+            margin: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .messages {
+            height: 300px;
+            overflow-y: scroll;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        .message.me {
+            background-color: #d1e7fd;
+            text-align: right;
+        }
+        .message.other {
+            background-color: #f8f9fa;
+            text-align: left;
+        }
+        .input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            padding: 8px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            margin-left: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <h2 id="chatTitle">Чат</h2>
+        <div id="messages" class="messages"></div>
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Введите сообщение...">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const chatId = urlParams.get("id");
+        const messagesContainer = document.getElementById("messages");
+
+        if (!chatId) {
+            alert("Ошибка: ID чата не указан!");
+            window.location.href = "index.html";
+        }
+
+        // 🟢 Создаем новое WebSocket соединение
+        const wsUrl = "ws://localhost/websockets/";
+        const ws = new WebSocket(wsUrl);
+
+        ws.onopen = () => {
+            console.log("WebSocket подключен для чата", chatId);
+            ws.send(JSON.stringify({ type: "join", chatId })); // Отправляем серверу ID чата
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+
+            // Показываем только сообщения из текущего чата
+            // if (data.chatId === chatId) {
+                const messageDiv = document.createElement("div");
+                messageDiv.classList.add("message", data.sender === "me" ? "me" : "other");
+                messageDiv.textContent = data.content;
+                messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            // }
+        };
+
+        ws.onerror = (error) => {
+            console.error("Ошибка WebSocket:", error);
+        };
+
+        ws.onclose = () => {
+            console.log("WebSocket соединение закрыто.");
+        };
+
+        function sendMessage() {
+            const input = document.getElementById("messageInput");
+            const messageText = input.value.trim();
+            // const userId = localStorage.getItem("userId"); // ID пользователя берем из локального хранилища
+
+            // if (!userId) {
+            //     alert("Ошибка: пользователь не авторизован!");
+            //     return;
+            // }
+
+            if (messageText) {
+                const message = {
+                    id: 0, // ID назначит сервер
+                    chat_id: parseInt(chatId), // `chatId` получаем из URL
+                    user_id: 0, // Твой user_id
+                    content: messageText,
+                    created_at: new Date().toISOString(),
+                    updated_at: new Date().toISOString()
+                };
+
+                ws.send(JSON.stringify(message)); // Отправляем сообщение
+                input.value = ""; // Очищаем поле ввода
+            }
+        }
+    </script>
+</body>
+</html>

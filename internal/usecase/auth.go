@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
 	"github.com/gene-qxsi/Flexive/internal/domain"
+	"github.com/gene-qxsi/Flexive/internal/dto"
 	"github.com/gene-qxsi/Flexive/internal/services"
 	"github.com/redis/go-redis/v9"
 )

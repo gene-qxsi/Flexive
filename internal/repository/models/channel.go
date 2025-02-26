@@ -9,4 +9,5 @@ type Channel struct {
 	UserID      int       `gorm:"type:int;not null;index" json:"user_id"`
 	User        User      `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE" json:"user"`
 	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }

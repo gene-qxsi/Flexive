@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
+	"github.com/gene-qxsi/Flexive/internal/dto"
 	"github.com/gene-qxsi/Flexive/internal/repository/models"
 	repository "github.com/gene-qxsi/Flexive/internal/repository/sqlrepo"
 )

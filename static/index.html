@@ -43,16 +43,113 @@
       color: #007bff;
       margin-bottom: 5px;
     }
+    .chat-list {
+      margin: 20px;
+      padding: 0;
+      list-style-type: none;
+    }
+    .chat-item {
+      background-color: #f8f9fa;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      padding: 10px;
+      cursor: pointer;
+    }
+    /* Стиль для формы создания чата */
+    .chat-form {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      border: 1px solid #ddd;
+    }
+    .chat-form input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    .chat-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .chat-form button:hover {
+      background-color: #0056b3;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <img src="https://img.megastroycdn.ru/llMNn8MH31c/products/06d0d4be36d15f8565d55364b562d6b953f6334f957f2f47bfbc0885a15d2f4f/13364_2_436451adad03f58b4ee7248fa3217563.jpg"
-     alt="User" class="profile-icon" id="profileIcon">
+         alt="User" class="profile-icon" id="profileIcon">
     <div class="profile-menu" id="profileMenu"></div>
   </div>
 
+  <div>
+    <h2>Все чаты</h2>
+    <ul id="chatList" class="chat-list">
+      <!-- Чаты будут загружаться сюда -->
+    </ul>
+    <button id="createChatBtn">Создать чат</button> <!-- Кнопка для создания чата -->
+  </div>
+
+  <!-- Окно с формой создания чата -->
+  <div class="overlay" id="overlay"></div>
+  <div class="chat-form" id="chatForm">
+    <h3>Создать чат</h3>
+    <input type="text" id="chatTitle" placeholder="Название чата" required>
+    <button id="submitChatBtn">Создать</button>
+  </div>
+
   <script>
+    // Устанавливаем WebSocket-соединение при загрузке страницы
+    window.addEventListener("load", () => {
+      const wsUrl = "ws://localhost/websockets/"; // URL для WebSocket-соединения
+      const ws = new WebSocket(wsUrl);
+
+      ws.onopen = () => {
+        console.log("WebSocket-соединение установлено");
+      };
+
+      ws.onmessage = (event) => {
+        console.log("Получено сообщение через WebSocket:", event.data);
+      };
+
+      ws.onerror = (error) => {
+        console.error("Ошибка WebSocket:", error);
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket-соединение закрыто");
+      };
+
+      window.ws = ws;
+    });
+
+    // Функция для авторизованных запросов
     async function authFetch(url, options = {}) {
       const accessToken = localStorage.getItem("accessToken");
       const headers = {
@@ -63,28 +160,60 @@
       return fetch(url, { ...options, headers });
     }
 
+    // Функция для загрузки всех чатов
+    async function loadChats() {
+    try {
+        const response = await authFetch("http://localhost/chats"); // Получаем данные о чатах
+        if (!response.ok) {
+            throw new Error(`Ошибка: ${response.status}`);
+        }
+        const chats = await response.json(); // Парсим ответ в JSON
+        const chatList = document.getElementById("chatList");
+        chatList.innerHTML = ""; // Очищаем список перед добавлением новых чатов
+
+        chats.forEach((chat) => {
+            const li = document.createElement("li");
+            li.classList.add("chat-item");
+            li.textContent = chat.title; // Предполагается, что чаты имеют поле "title"
+
+            // 🟢 Добавляем обработчик клика
+            li.addEventListener("click", () => {
+                window.location.href = `chat.html?id=${chat.id}`; // Открываем страницу чата с ID
+            });
+
+            chatList.appendChild(li);
+        });
+    } catch (error) {
+        console.error("Ошибка загрузки чатов:", error);
+    }
+}
+
+    // Загружаем чаты при загрузке страницы
+    loadChats();
+
+    // Обработчик клика по иконке профиля
     document.getElementById("profileIcon").addEventListener("click", async function() {
       const menu = document.getElementById("profileMenu");
-      
+
       if (menu.style.display === "block") {
         menu.style.display = "none";
         return;
       }
-      
+
       try {
         const response = await authFetch("http://localhost/profiles/me");
         if (!response.ok) {
           throw new Error(`Ошибка: ${response.status}`);
         }
         const data = await response.json();
-        
-        menu.innerHTML = `
+
+        menu.innerHTML = ` 
           <p>Имя: ${data.name || data.username || "Неизвестно"}</p>
           <p>Email: ${data.email || "Не указан"}</p>
         `;
       } catch (error) {
         console.error("Ошибка запроса:", error);
-        menu.innerHTML = `
+        menu.innerHTML = ` 
           <p>Вы не авторизованы</p>
           <div class="auth-links">
             <a href="/signup.html">Регистрация</a>
@@ -95,6 +224,7 @@
 
       menu.style.display = "block";
     });
+
   </script>
 </body>
 </html>

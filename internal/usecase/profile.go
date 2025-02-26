@@ -3,7 +3,7 @@ package usecase
 import (
 	"context"
 
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/dto"
+	"github.com/gene-qxsi/Flexive/internal/dto"
 	"github.com/gene-qxsi/Flexive/internal/services"
 )
 

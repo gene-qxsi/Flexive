@@ -5,7 +5,8 @@ import (
 	"log"
 
 	"github.com/gene-qxsi/Flexive/configs"
-	"github.com/gene-qxsi/Flexive/internal/delivery/http/v1/controllers"
+	controllersHTTP "github.com/gene-qxsi/Flexive/internal/controllers/http/v1"
+	controllersWS "github.com/gene-qxsi/Flexive/internal/controllers/ws"
 	"github.com/gene-qxsi/Flexive/internal/middleware"
 	auth "github.com/gene-qxsi/Flexive/internal/repository"
 	repository "github.com/gene-qxsi/Flexive/internal/repository/sqlrepo"
@@ -43,6 +44,7 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	subscriptionRepo := repository.NewSubscriptionRepo(postgres)
 	authRepo := auth.NewAuthRepository(redis, conf)
 	profileRepo := repository.NewProfileRepository(postgres)
+	chatRepo := repository.NewChatRepo(postgres)
 
 	userService := services.NewUserService(userRepo, hasher)
 	channelService := services.NewChannelService(channelRepo)
@@ -51,17 +53,21 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 	subscriptionService := services.NewSubscriptionService(subscriptionRepo)
 	authService := services.NewAuthService(authRepo, conf)
 	profileService := services.NewProfileService(profileRepo)
+	chatService := services.NewChatService(chatRepo)
 
-	authUseCase := usecase.NewAuthUseCase(userService, authService, profileService)
-	profileUseCase := usecase.NewProfileUsecase(profileService)
+	authUsecase := usecase.NewAuthUseCase(userService, authService, profileService)
+	profileUsecase := usecase.NewProfileUsecase(profileService)
+	chatUsecase := usecase.NewChatUsecase(chatService)
 
-	userHandler := controllers.NewUserController(userService)
-	channelController := controllers.NewChannelController(channelService)
-	commentController := controllers.NewCommentHandler(commentService)
-	postController := controllers.NewPostHandler(postService)
-	subscriptionController := controllers.NewSubscriptionController(subscriptionService)
-	authController := controllers.NewAuthController(authUseCase)
-	profileController := controllers.NewProfileController(profileUseCase)
+	userHandler := controllersHTTP.NewUserController(userService)
+	channelController := controllersHTTP.NewChannelController(channelService)
+	commentController := controllersHTTP.NewCommentHandler(commentService)
+	postController := controllersHTTP.NewPostHandler(postService)
+	subscriptionController := controllersHTTP.NewSubscriptionController(subscriptionService)
+	authController := controllersHTTP.NewAuthController(authUsecase)
+	profileController := controllersHTTP.NewProfileController(profileUsecase)
+	chatsController := controllersHTTP.NewChatController(chatUsecase)
+	wsController := controllersWS.NewWSController(chatUsecase)
 
 	authMiddleware := middleware.NewAuthMiddleware(authService)
 
@@ -127,6 +133,17 @@ func InitRouter(conf *configs.Config) *gin.Engine {
 		profileGroup.GET("/:userID", profileController.GetProfile)
 		profileGroup.PUT("/me", profileController.UpdateProfile)
 		// profileGroup.PUT("/:id", profileController.UpdateProfile)
+	}
+	// CHAT API
+	chatGroup := router.Group("/chats")
+	{
+		chatGroup.GET("/", chatsController.GetChats)
+		chatGroup.POST("/", chatsController.CreateChat)
+	}
+	// WEBSOCKET API
+	wsGroup := router.Group("/websockets")
+	{
+		wsGroup.GET("/", wsController.ChatController)
 	}
 
 	return router
